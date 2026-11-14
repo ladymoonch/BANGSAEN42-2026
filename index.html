@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>BANGSAEN42 • Medical Operations Dashboard</title>
+<title>BANGSAEN42 2026 • Medical Operations Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -59,6 +59,7 @@ input[type=search]{width:100%;padding:10px 12px;border:1px solid var(--bd);borde
 .ch{width:100%;height:auto;display:block}
 .lg2{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mu);margin-top:6px}.lg2 span{display:inline-flex;align-items:center;gap:4px}.lg2 b{width:10px;height:10px;border-radius:2px;display:inline-block}
 select{font:inherit;padding:2px 6px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--tx);text-transform:none;letter-spacing:0}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px}
 .exp #q,.exp .btn,.exp .msg{display:none!important}
 </style>
 </head>
@@ -74,13 +75,12 @@ select{font:inherit;padding:2px 6px;border:1px solid var(--bd);border-radius:6px
   <div class="kpis">
     <div class="card kpi"><div class="l">เคสทั้งหมด</div><div class="v"><span id="k-total">–</span> <small>/ <span id="k-att">13,049</span> คน</small></div></div>
     <div class="card kpi"><div class="l">In care now</div><div class="v"><span id="k-care">–</span> <small>คน</small></div></div>
-    <div class="card kpi red"><div class="l">Critical (RED)</div><div class="v"><span id="k-red">–</span> <small>เคส</small></div></div>
     <div class="card kpi"><div class="l">Cardiac arrest</div><div class="v"><span id="k-ca">–</span> <small>เคส</small></div></div>
     <div class="card kpi"><div class="l">Heat related illness</div><div class="v"><span id="k-heat">–</span> <small>เคส</small></div></div>
     <div class="card kpi"><div class="l">Cramps</div><div class="v"><span id="k-cr">–</span> <small>เคส</small></div></div>
   </div>
 
-  <div class="card" style="margin-top:12px"><h2>ระดับความรุนแรง &amp; ผลลัพธ์หน้างาน</h2><div class="kpis" id="sev"></div><div class="scroll" style="margin-top:12px"><table id="mx"></table></div></div>
+  <div class="card" style="margin-top:12px"><h2>Diagnosis × ผลการดูแลหน้างาน</h2><div class="scroll"><table id="mx"></table></div></div>
 
   <div class="grid2">
     <div class="card"><h2>Diagnosis (จำนวนจริง / %)</h2><div class="pie"><svg viewBox="-1 -1 2 2" id="pie"></svg><div class="leg" id="leg"></div></div></div>
@@ -95,17 +95,17 @@ select{font:inherit;padding:2px 6px;border:1px solid var(--bd);border-radius:6px
   </div>
 
   <div class="grid2">
-    <div class="card"><h2>เคสรายชั่วโมง (Time in)</h2><svg class="ch" id="ch-h" viewBox="0 0 600 190"></svg><div class="lg2" id="lg-h"></div></div>
+    <div class="card"><h2>เคสรายชั่วโมง (Time in) แยกตาม Diagnosis</h2><svg class="ch" id="ch-h" viewBox="0 0 600 190"></svg><div class="lg2" id="lg-h"></div></div>
     <div class="card"><h2>เคสตามกิโลเมตร <select id="binsel"><option value="1">ทุก 1 กม.</option><option value="2" selected>ทุก 2 กม.</option><option value="5">ทุก 5 กม.</option></select></h2><svg class="ch" id="ch-k" viewBox="0 0 600 190"></svg><div class="lg2" id="lg-k"></div></div>
   </div>
 
-  <div class="card" style="margin-top:12px"><h2>เวลา × กิโลเมตร (1 จุด = 1 เคส)</h2><svg class="ch" id="ch-s" viewBox="0 0 600 190"></svg></div>
+  <div class="card" style="margin-top:12px"><h2>เวลา × กิโลเมตร (1 จุด = 1 เคส สีตาม Diagnosis)</h2><svg class="ch" id="ch-s" viewBox="0 0 600 190"></svg></div>
 
   <div class="card" style="margin-top:12px">
     <h2>Patient log</h2>
-    <input type="search" id="q" placeholder="ค้นหา Bib, Sex/Age, Triage, Diagnosis, Disposition…">
+    <input type="search" id="q" placeholder="ค้นหา Bib, Sex/Age, Diagnosis, Disposition…">
     <div class="scroll"><table>
-      <thead><tr><th>Time in</th><th>Bib No.</th><th>Sex / Age</th><th>Triage</th><th>Diagnosis</th><th>Disposition</th><th class="r">Total stay</th></tr></thead>
+      <thead><tr><th>Time in</th><th>Bib No.</th><th>Sex / Age</th><th>Diagnosis</th><th>Disposition</th><th class="r">Total stay (min)</th></tr></thead>
       <tbody id="log"></tbody></table></div>
     <div class="sub" id="log-n" style="margin-top:8px"></div>
   </div>
@@ -115,9 +115,9 @@ select{font:inherit;padding:2px 6px;border:1px solid var(--bd);border-radius:6px
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 var FILE_ID="1xCi2lmsSjzGd18VL1aSUW0FE15X0vHzSlq6qsO4fZ9I", ATTENDEES=13049;
-var STATIONS=["MSC","MSF","MS Heritage","MS Food one","MS4","MS8","MS12","MS16","MS22"];
+var STATIONS=["MSC","MSF","MS Heritage","MS Food one","MS4","MS8","MS12","MS16","MS22","MS28","MS30"];
 var COLORS=["#0b6cff","#d92d20","#f79009","#12b76a","#7a5af8","#06aed4","#ee46bc","#667085","#a15c07","#2e90fa","#9e77ed","#4ca30d"];
-var C={TS:0,LOC:3,BIB:5,SEX:8,AGE:9,TIN:11,TRI:15,DX:30,DXO:31,OUT:34,DISP:36};
+var C={TS:0,LOC:3,BIB:5,SEX:8,AGE:9,TIN:11,DX:20,DXO:21,OUT:23,DISP:24};
 var $=function(id){return document.getElementById(id)};
 var rows=[],PL={};
 
@@ -156,7 +156,7 @@ function mins(t){
   return h*60+ +m[2];
 }
 function stay(r){
-  var a=mins(r[C.TIN]),b=mins(r[C.OUT]); if(a==null||b==null)return null;
+  var a=mins(tin(r)),b=mins(r[C.OUT]); if(a==null||b==null)return null;
   var d=b-a; if(d<0)d+=1440; return d;
 }
 function esc(x){return s(x).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
@@ -166,131 +166,112 @@ function render(data){
   rows=data.filter(function(r,i){return i>0&&s(r[C.TS])!==""});
   var n=rows.length;
   var care=rows.filter(function(r){return s(r[C.TIN])!==""&&s(r[C.DISP])===""}).length;
-  var red=rows.filter(function(r){return has(r[C.TRI],/red|แดง/i)}).length;
-  var ca=rows.filter(function(r){return has(r[C.DX],/cardiac arrest|หัวใจหยุดเต้น/i)}).length;
-  var heat=rows.filter(function(r){return has(r[C.DX],/heat\s*stroke|heatstroke|heat\s*stress|heat\s*exhaustion|ลมร้อน|เครียดจากความร้อน|เพลียแดด/i)}).length;
-  var cr=rows.filter(function(r){return has(r[C.DX],/cramp|ตะคริว/i)}).length;
+  var ca=rows.filter(function(r){return dxc(r)==0}).length;
+  var heat=rows.filter(function(r){return /heat\s*stroke|heatstroke|heat\s*stress|heat\s*exhaustion|ลมร้อน|เครียดจากความร้อน|เพลียแดด/i.test(s(r[C.DX]))}).length;
+  var cr=rows.filter(function(r){return dxc(r)==9}).length;
   $("k-total").textContent=fmt(n);$("k-att").textContent=fmt(ATTENDEES);
-  $("k-care").textContent=fmt(care);$("k-red").textContent=fmt(red);
-  $("k-ca").textContent=fmt(ca);$("k-heat").textContent=fmt(heat);$("k-cr").textContent=fmt(cr);
-
-  // stations
+  $("k-care").textContent=fmt(care);$("k-ca").textContent=fmt(ca);$("k-heat").textContent=fmt(heat);$("k-cr").textContent=fmt(cr);
   var st={};STATIONS.forEach(function(k){st[k]=0});
   rows.forEach(function(r){var k=s(r[C.LOC]);if(k)st[k]=(st[k]||0)+1});
   var keys=Object.keys(st).sort(function(a,b){return st[b]-st[a]||STATIONS.indexOf(a)-STATIONS.indexOf(b)});
-  var mx=Math.max.apply(null,keys.map(function(k){return st[k]}).concat([1]));
-  $("stations").innerHTML=keys.map(function(k){return '<div class="row"><span class="n" title="'+esc(k)+'">'+esc(k)+'</span><span class="bar"><i style="width:'+(st[k]/mx*100)+'%"></i></span><span class="c">'+st[k]+'</span></div>'}).join("");
-
-  // diagnosis pie
-  var dx={},tot=0;
-  rows.forEach(function(r){var k=s(r[C.DX]);if(k){dx[k]=(dx[k]||0)+1;tot++}});
-  var dk=Object.keys(dx).sort(function(a,b){return dx[b]-dx[a]});
+  var mxs=Math.max.apply(null,keys.map(function(k){return st[k]}).concat([1]));
+  $("stations").innerHTML=keys.map(function(k){return '<div class="row"><span class="n" title="'+esc(k)+'">'+esc(k)+'</span><span class="bar"><i style="width:'+(st[k]/mxs*100)+'%"></i></span><span class="c">'+st[k]+'</span></div>'}).join("");
+  var dn=DXN.map(function(){return 0}),tot=0;
+  rows.forEach(function(r){var k=dxc(r);if(k>=0){dn[k]++;tot++}});
   var svg="",ang=-Math.PI/2;
   if(!tot){svg='<circle r="1" fill="var(--bd)"/><circle r=".55" fill="var(--card)"/>'}
-  else dk.forEach(function(k,i){
-    var f=dx[k]/tot,col=COLORS[i%COLORS.length];
-    if(f>=0.9999){svg+='<circle r="1" fill="'+col+'"/>';return}
+  else dn.forEach(function(v,i){
+    if(!v)return;var f=v/tot;
+    if(f>=0.9999){svg+='<circle r="1" fill="'+DXC[i]+'"/>';return}
     var a2=ang+f*2*Math.PI,x1=Math.cos(ang),y1=Math.sin(ang),x2=Math.cos(a2),y2=Math.sin(a2);
-    svg+='<path d="M0 0L'+x1+' '+y1+'A1 1 0 '+(f>.5?1:0)+' 1 '+x2+' '+y2+'Z" fill="'+col+'"><title>'+esc(k)+': '+dx[k]+'</title></path>';
-    ang=a2;
-  });
+    svg+='<path d="M0 0L'+x1+' '+y1+'A1 1 0 '+(f>.5?1:0)+' 1 '+x2+' '+y2+'Z" fill="'+DXC[i]+'"><title>'+esc(DXN[i])+': '+v+'</title></path>';ang=a2});
   if(tot)svg+='<circle r=".5" fill="var(--card)"/><text y=".08" text-anchor="middle" font-size=".28" font-weight="700" fill="var(--tx)">'+tot+'</text>';
   $("pie").innerHTML=svg;
-  $("leg").innerHTML=tot?dk.map(function(k,i){return '<div><b style="background:'+COLORS[i%COLORS.length]+'"></b><span>'+esc(k)+'</span><em>'+dx[k]+' ('+(dx[k]/tot*100).toFixed(1)+'%)</em></div>'}).join(""):'<div class="empty">ยังไม่มีข้อมูล</div>';
-
-  // disposition
-  var G=[["ให้วิ่งต่อ",/วิ่งต่อ|continue|return to race/i],["DNF",/dnf/i],["ส่งรักษาต่อ ร.พ.",/ส่งรักษา|โรงพยาบาล|รพ|refer|hospital/i]];
-  var gc=[0,0,0],other=0,dt=0;
-  rows.forEach(function(r){var d=s(r[C.DISP]);if(!d)return;dt++;
-    for(var i=0;i<G.length;i++){if(G[i][1].test(d)){gc[i]++;return}} other++});
-  var h="";G.forEach(function(g,i){h+='<tr><td>'+g[0]+'</td><td class="r">'+gc[i]+'</td><td class="r">'+(dt?(gc[i]/dt*100).toFixed(1):"0.0")+'%</td></tr>'});
-  if(other)h+='<tr><td>อื่น ๆ</td><td class="r">'+other+'</td><td class="r">'+(other/dt*100).toFixed(1)+'%</td></tr>';
+  $("leg").innerHTML=DXN.map(function(nm,i){if(i==11&&!dn[i])return "";return '<div><b style="background:'+DXC[i]+'"></b><span>'+esc(nm)+'</span><em>'+dn[i]+' ('+(tot?(dn[i]/tot*100).toFixed(1):"0.0")+'%)</em></div>'}).join("");
+  var dc=[0,0,0,0,0],dt=0;
+  rows.forEach(function(r){var d=dcls(r[C.DISP]);dc[d]++;if(d<4)dt++});
+  var h="";[0,1,2].forEach(function(i){h+='<tr><td>'+DN[i]+'</td><td class="r">'+dc[i]+'</td><td class="r">'+(dt?(dc[i]/dt*100).toFixed(1):"0.0")+'%</td></tr>'});
+  if(dc[3])h+='<tr><td>อื่น ๆ</td><td class="r">'+dc[3]+'</td><td class="r">'+(dc[3]/dt*100).toFixed(1)+'%</td></tr>';
   $("disp").innerHTML=h;
   $("disp-note").textContent="คิดเป็น % ของเคสที่มีผลการดูแลแล้ว ("+fmt(dt)+" เคส)";
-
-  render2();
-  drawLog();
+  render2();drawLog();
 }
 
 function drawLog(lim){
   var q=s($("q").value).toLowerCase();
   var list=rows.slice().reverse().map(function(r){
-    var sx=[s(r[C.SEX]),s(r[C.AGE])].filter(Boolean).join(" / ");
-    var tri=s(r[C.TRI]),stv=stayOf(r);
-    return {t:s(r[C.TIN]),bib:s(r[C.BIB]),sa:sx,tri:tri,dx:s(r[C.DX]),dp:s(r[C.DISP]),st:stv};
+    return {t:tin(r),bib:s(r[C.BIB]),sa:[s(r[C.SEX]),s(r[C.AGE])].filter(Boolean).join(" / "),dx:s(r[C.DX]),dp:s(r[C.DISP]),st:stayOf(r)};
   }).filter(function(o){
-    return !q||[o.t,o.bib,o.sa,o.tri,o.dx,o.dp,o.st==null?"":o.st].join(" ").toLowerCase().indexOf(q)>-1;
+    return !q||[o.t,o.bib,o.sa,o.dx,o.dp,o.st==null?"":o.st].join(" ").toLowerCase().indexOf(q)>-1;
   });
   if(lim)list=list.slice(0,lim);
   $("log").innerHTML=list.length?list.map(function(o){
-    var red=/red|แดง/i.test(o.tri);
-    return '<tr><td>'+esc(o.t)+'</td><td>'+esc(o.bib)+'</td><td>'+esc(o.sa)+'</td><td><span class="tag'+(red?' red':'')+'">'+esc(o.tri||"–")+'</span></td><td>'+esc(o.dx)+'</td><td>'+esc(o.dp||"กำลังดูแล")+'</td><td class="r">'+(o.st==null?"–":o.st)+'</td></tr>';
-  }).join(""):'<tr><td colspan="7" class="empty">ไม่พบข้อมูล</td></tr>';
+    return '<tr><td>'+esc(o.t)+'</td><td>'+esc(o.bib)+'</td><td>'+esc(o.sa)+'</td><td>'+esc(o.dx)+'</td><td>'+esc(o.dp||"กำลังดูแล")+'</td><td class="r">'+(o.st==null?"–":o.st)+'</td></tr>';
+  }).join(""):'<tr><td colspan="6" class="empty">ไม่พบข้อมูล</td></tr>';
   $("log-n").textContent="แสดง "+list.length+" จาก "+rows.length+" รายการ";
 }
 
 function setStatus(ok,text){$("dot").className="dot "+(ok?"ok":"err");$("upd").textContent=text}
 function showMsg(t){var m=$("msg");m.textContent=t;m.style.display=t?"block":"none"}
 
-var TC=["#d92d20","#f5b301","#12b76a","#98a2b3"],TN=["Red","Yellow","Green","อื่น ๆ"];
-var DG=[/วิ่งต่อ|continue|return to race/i,/dnf/i,/ส่งรักษา|โรงพยาบาล|รพ|refer|hospital/i],DN=["ให้วิ่งต่อ","DNF","ส่งรักษาต่อ ร.พ.","อื่น ๆ","กำลังดูแล"];
-function tcls(v){v=s(v);return /red|แดง/i.test(v)?0:/yellow|เหลือง/i.test(v)?1:/green|เขียว/i.test(v)?2:3}
-function dcls(d){d=s(d);if(!d)return 4;for(var i=0;i<3;i++)if(DG[i].test(d))return i;return 3}
-function kmOf(r){var m=s(r[12]).replace(",",".").match(/\d+(\.\d+)?/);return m?parseFloat(m[0]):null}
-function hrOf(r){var m=mins(r[C.TIN]);return m==null?null:Math.floor(m/60)}
+var DXN=["ภาวะหัวใจหยุดเต้น (Cardiac arrest)","ภาวะเพลียแดด (Heat exhaustion)","โรคลมร้อน (Heatstroke)","ภาวะเป็นลม หมดสติ (Syncope)","สงสัยภาวะ Exercise associated hyponatremia","สงสัยภาวะเส้นเลือดหัวใจตีบ (Acute coronary syndrome)","โรคทางระบบทางเดินหายใจ (Respiratory system)","อาการชักเกร็ง (Seizure)","โรคทางระบบทางเดินอาหาร (GI symptoms)","ตะคริว (Cramps)","บาดเจ็บจากอุบัติเหตุ (Trauma)","อื่น ๆ"];
+var DXS=["Cardiac arrest","Heat exhaustion","Heatstroke","Syncope","Hyponatremia","ACS","Respiratory","Seizure","GI","Cramps","Trauma","อื่น ๆ"];
+var DXC=["#d92d20","#f79009","#fdb022","#7a5af8","#06aed4","#ee46bc","#2e90fa","#9e77ed","#12b76a","#4ca30d","#a15c07","#98a2b3"];
+var DXR=[/cardiac arrest|หัวใจหยุดเต้น/i,/heat exhaustion|เพลียแดด/i,/heat\s*stroke|heatstroke|ลมร้อน/i,/syncope|เป็นลม|หมดสติ/i,/hyponatremia/i,/coronary|เส้นเลือดหัวใจ/i,/respiratory|ทางเดินหายใจ/i,/seizure|ชักเกร็ง/i,/gi symptoms|ทางเดินอาหาร/i,/cramp|ตะคริว/i,/trauma|บาดเจ็บ/i];
+var DN=["ให้วิ่งต่อ","DNF","ส่งรักษาต่อ ร.พ.","อื่น ๆ","กำลังดูแล"];
+function dxc(r){var v=s(r[C.DX]);if(!v)return -1;for(var i=0;i<11;i++)if(DXR[i].test(v))return i;return 11}
+function dcls(d){d=s(d);if(!d)return 4;if(/dnf|ไม่วิ่งต่อ|ไม่สามารถวิ่ง|ยุติการแข่งขัน/i.test(d))return 1;if(/ส่งต่อ|ส่งรักษา|ส่ง\s*ร\.?\s*พ|โรงพยาบาล|รพ|refer|hospital/i.test(d))return 2;if(/วิ่งต่อ|continue|return to race/i.test(d))return 0;return 3}
+function tin(r){return s(r[C.TIN])||s(r[1])}
+function stayOf(r){var k=s(r[C.BIB])+"|"+mins(tin(r));if(typeof PL!=="undefined"&&PL[k]!==undefined)return PL[k];return stay(r)}
+function kmOf(r){var m=s(r[C.LOC]).match(/^MS\s*(\d+)\s*$/i)||s(r[12]).match(/(\d+(?:\.\d+)?)\s*(?:กม|km)/i);return m?parseFloat(m[1]):null}
+function hrOf(r){var m=mins(tin(r));return m==null?null:Math.floor(m/60)}
 function p2(n){return (n<10?"0":"")+n}
-function lgd(){return TN.map(function(n,i){return '<span><b style="background:'+TC[i]+'"></b>'+n+'</span>'}).join("")}
+function lgd(){return DXS.map(function(n,i){return '<span><b style="background:'+DXC[i]+'"></b>'+n+'</span>'}).join("")}
 function tick(){var d=new Date();$("clk").textContent=d.toLocaleTimeString("en-GB",{timeZone:"Asia/Bangkok",hourCycle:"h23"});$("dte").textContent=d.toLocaleDateString("th-TH",{timeZone:"Asia/Bangkok",day:"numeric",month:"short",year:"numeric"})}
 function tx(x,y,t,a){return '<text x="'+x+'" y="'+y+'" text-anchor="'+(a||"middle")+'" font-size="10" fill="var(--mu)">'+t+'</text>'}
+function sum(a){return a.reduce(function(x,y){return x+y},0)}
 function stack(id,labels,data,step){
   var W=600,H=190,pl=28,pb=22,pt=8,ch=H-pb-pt,n=Math.max(labels.length,1),bw=(W-pl-4)/n,
-  mx=Math.max.apply(null,data.map(function(d){return d[0]+d[1]+d[2]+d[3]}).concat([1])),h="";
+  mx=Math.max.apply(null,data.map(sum).concat([1])),h="";
   [0,.5,1].forEach(function(f){var y=H-pb-f*ch;h+=tx(pl-4,y+3,Math.round(mx*f),"end")+'<line x1="'+pl+'" x2="'+W+'" y1="'+y+'" y2="'+y+'" stroke="var(--bd)"'+(f?' stroke-dasharray="2 3"':'')+'/>'});
   data.forEach(function(d,i){
-    var y=H-pb,x=pl+i*bw+bw*.12,w=bw*.76,t=d[0]+d[1]+d[2]+d[3];
-    h+='<g><title>'+labels[i]+' : '+t+' เคส</title>';
-    for(var k=0;k<4;k++){if(!d[k])continue;var hh=d[k]/mx*ch;y-=hh;h+='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+hh+'" fill="'+TC[k]+'"/>'}
+    var y=H-pb,x=pl+i*bw+bw*.12,w=bw*.76;
+    h+='<g><title>'+labels[i]+' : '+sum(d)+' เคส</title>';
+    for(var k=0;k<d.length;k++){if(!d[k])continue;var hh=d[k]/mx*ch;y-=hh;h+='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+hh+'" fill="'+DXC[k]+'"/>'}
     h+='</g>';
     if(i%step==0)h+=tx(x+w/2,H-7,labels[i]);
   });
   $(id).innerHTML=h;
 }
 function render2(){
-  var n=rows.length,tc=[0,0,0,0],dc=[0,0,0,0,0],mx=[0,1,2,3].map(function(){return [0,0,0,0,0]});
-  rows.forEach(function(r){var t=tcls(r[C.TRI]),d=dcls(r[C.DISP]);tc[t]++;dc[d]++;mx[t][d]++});
-  var pc=function(x){return n?(x/n*100).toFixed(1)+"%":"0.0%"};
-  var tiles=[["Red",tc[0],"#d92d20"],["Yellow",tc[1],"#f5b301"],["Green",tc[2],"#12b76a"],["ส่งรักษาต่อ ร.พ.",dc[2],"#7a5af8"],["DNF",dc[1],"#667085"],["ให้วิ่งต่อ",dc[0],"#0b6cff"]];
-  $("sev").innerHTML=tiles.map(function(t){return '<div class="card kpi" style="border-left:5px solid '+t[2]+'"><div class="l">'+t[0]+'</div><div class="v">'+t[1]+' <small>'+pc(t[1])+'</small></div></div>'}).join("");
-  var cols=[0,1,2,3,4];
-  var h='<thead><tr><th>ความรุนแรง</th>'+cols.map(function(c){return '<th class="r">'+DN[c]+'</th>'}).join("")+'<th class="r">รวม</th></tr></thead><tbody>';
-  for(var t=0;t<4;t++){if(t==3&&!tc[3])continue;
-    h+='<tr><td><span class="tag" style="background:'+TC[t]+';color:'+(t==1?'#14213d':'#fff')+'">'+TN[t]+'</span></td>'+cols.map(function(c){return '<td class="r">'+mx[t][c]+'</td>'}).join("")+'<td class="r"><b>'+tc[t]+'</b></td></tr>'}
-  h+='<tr><td><b>รวม</b></td>'+cols.map(function(c){return '<td class="r"><b>'+dc[c]+'</b></td>'}).join("")+'<td class="r"><b>'+n+'</b></td></tr></tbody>';
+  var n=rows.length,mx=DXN.map(function(){return [0,0,0,0,0]});
+  rows.forEach(function(r){var k=dxc(r);if(k>=0)mx[k][dcls(r[C.DISP])]++});
+  var cs=[0,1,2,3,4].map(function(c){return sum(mx.map(function(m){return m[c]}))});
+  var h='<thead><tr><th>Diagnosis</th>'+DN.map(function(x){return '<th class="r">'+x+'</th>'}).join("")+'<th class="r">รวม</th></tr></thead><tbody>';
+  DXN.forEach(function(nm,k){var t=sum(mx[k]);if(k==11&&!t)return;
+    h+='<tr><td><b class="sw" style="background:'+DXC[k]+'"></b>'+esc(nm)+'</td>'+mx[k].map(function(v){return '<td class="r">'+v+'</td>'}).join("")+'<td class="r"><b>'+t+'</b></td></tr>'});
+  h+='<tr><td><b>รวม</b></td>'+cs.map(function(v){return '<td class="r"><b>'+v+'</b></td>'}).join("")+'<td class="r"><b>'+sum(cs)+'</b></td></tr></tbody>';
   $("mx").innerHTML=h;
-  // per medical post: total,R,Y,G,refer,DNF,run,in care
-  var ps={};STATIONS.forEach(function(k){ps[k]=[0,0,0,0,0,0,0,0]});
-  rows.forEach(function(r){var k=s(r[C.LOC]);if(!k)return;var a=ps[k]=ps[k]||[0,0,0,0,0,0,0,0],t=tcls(r[C.TRI]),d=dcls(r[C.DISP]);a[0]++;if(t<3)a[1+t]++;if(d==2)a[4]++;if(d==1)a[5]++;if(d==0)a[6]++;if(d==4)a[7]++});
-  var pk=Object.keys(ps).sort(function(a,b){return ps[b][0]-ps[a][0]});
-  $("ptab").innerHTML='<thead><tr><th>Post</th><th class="r">รวม</th><th class="r">R</th><th class="r">Y</th><th class="r">G</th><th class="r">ส่ง ร.พ.</th><th class="r">DNF</th><th class="r">วิ่งต่อ</th><th class="r">ดูแลอยู่</th></tr></thead><tbody>'+pk.map(function(k){return '<tr><td>'+esc(k)+'</td>'+ps[k].map(function(v,i){return '<td class="r">'+(i==0?'<b>'+v+'</b>':v)+'</td>'}).join("")+'</tr>'}).join("")+'</tbody>';
-  // hourly
+  var ps={};STATIONS.forEach(function(k){ps[k]=[0,0,0,0,0,0]});
+  rows.forEach(function(r){var k=s(r[C.LOC]);if(!k)return;var a=ps[k]=ps[k]||[0,0,0,0,0,0],d=dcls(r[C.DISP]);a[0]++;if(d==2)a[1]++;if(d==1)a[2]++;if(d==0)a[3]++;if(d==4)a[4]++;if(d==3)a[5]++});
+  var pk=Object.keys(ps).sort(function(a,b){return ps[b][0]-ps[a][0]||STATIONS.indexOf(a)-STATIONS.indexOf(b)});
+  $("ptab").innerHTML='<thead><tr><th>Post</th><th class="r">รวม</th><th class="r">ส่ง ร.พ.</th><th class="r">DNF</th><th class="r">วิ่งต่อ</th><th class="r">ดูแลอยู่</th><th class="r">อื่น ๆ</th></tr></thead><tbody>'+pk.map(function(k){return '<tr><td>'+esc(k)+'</td>'+ps[k].map(function(v,i){return '<td class="r">'+(i==0?'<b>'+v+'</b>':v)+'</td>'}).join("")+'</tr>'}).join("")+'</tbody>';
   var hs=rows.map(hrOf).filter(function(x){return x!=null}),h0=hs.length?Math.min.apply(null,hs):5,h1=hs.length?Math.max.apply(null,hs):12,q;
   if(h1<h0+5)h1=Math.min(23,h0+5);
-  var hl=[],hd=[];for(q=h0;q<=h1;q++){hl.push(p2(q)+":00");hd.push([0,0,0,0])}
-  rows.forEach(function(r){var z=hrOf(r);if(z!=null&&z>=h0&&z<=h1)hd[z-h0][tcls(r[C.TRI])]++});
+  var hl=[],hd=[];for(q=h0;q<=h1;q++){hl.push(p2(q)+":00");hd.push(DXN.map(function(){return 0}))}
+  rows.forEach(function(r){var z=hrOf(r),k=dxc(r);if(z!=null&&z>=h0&&z<=h1)hd[z-h0][k<0?11:k]++});
   stack("ch-h",hl,hd,Math.ceil(hl.length/12));
   $("lg-h").innerHTML=lgd();$("lg-k").innerHTML=lgd();
-  // by km
   var kb=+$("binsel").value,kv=rows.map(kmOf),km=Math.max.apply(null,kv.filter(function(x){return x!=null}).concat([42])),nb=Math.floor(km/kb)+1,kl=[],kd=[];
-  for(var i=0;i<nb;i++){kl.push(kb==1?""+i:i*kb+"–"+(i+1)*kb);kd.push([0,0,0,0])}
-  rows.forEach(function(r,i){var k=kv[i];if(k!=null)kd[Math.min(nb-1,Math.floor(k/kb))][tcls(r[C.TRI])]++});
+  for(var i=0;i<nb;i++){kl.push(kb==1?""+i:i*kb+"–"+(i+1)*kb);kd.push(DXN.map(function(){return 0}))}
+  rows.forEach(function(r,i){var k=kv[i],c=dxc(r);if(k!=null)kd[Math.min(nb-1,Math.floor(k/kb))][c<0?11:c]++});
   stack("ch-k",kl,kd,Math.ceil(nb/12));
-  // scatter time x km
-  var W=600,H=190,pl=30,pb=22,pt=8,xs=h1+1-h0,ym=Math.ceil(km/6)*6,sv="",st=Math.ceil((xs+1)/12);
+  var W=600,H=190,pl=30,pb=22,pt=8,xs=h1+1-h0,ym=Math.ceil(km/6)*6,sv="",stp=Math.ceil((xs+1)/12);
   [0,.5,1].forEach(function(f){var y=H-pb-f*(H-pb-pt);sv+=tx(pl-4,y+3,Math.round(ym*f),"end")+'<line x1="'+pl+'" x2="'+W+'" y1="'+y+'" y2="'+y+'" stroke="var(--bd)" stroke-dasharray="2 3"/>'});
-  for(q=h0;q<=h1+1;q++){if((q-h0)%st==0)sv+=tx(pl+(q-h0)/xs*(W-pl-6),H-7,p2(q)+":00")}
-  rows.forEach(function(r,i){var m=mins(r[C.TIN]),k=kv[i];if(m==null||k==null)return;
-    var x=pl+(m/60-h0)/xs*(W-pl-6),y=H-pb-Math.min(k,ym)/ym*(H-pb-pt),t=tcls(r[C.TRI]);
-    sv+='<circle cx="'+x+'" cy="'+y+'" r="3.5" fill="'+TC[t]+'" fill-opacity=".8"><title>'+esc(s(r[C.TIN]))+' • '+k+' กม. • '+TN[t]+'</title></circle>'});
+  for(q=h0;q<=h1+1;q++){if((q-h0)%stp==0)sv+=tx(pl+(q-h0)/xs*(W-pl-6),H-7,p2(q)+":00")}
+  rows.forEach(function(r,i){var m=mins(tin(r)),k=kv[i],c=dxc(r);if(m==null||k==null)return;if(c<0)c=11;
+    var x=pl+(m/60-h0)/xs*(W-pl-6),y=H-pb-Math.min(k,ym)/ym*(H-pb-pt);
+    sv+='<circle cx="'+x+'" cy="'+y+'" r="3.5" fill="'+DXC[c]+'" fill-opacity=".8"><title>'+esc(tin(r))+' • '+k+' กม. • '+DXS[c]+'</title></circle>'});
   $("ch-s").innerHTML=sv;
 }
 async function exportPDF(){
@@ -317,7 +298,6 @@ render([]);
 
 var CFG={SHEET_ID:"1xCi2lmsSjzGd18VL1aSUW0FE15X0vHzSlq6qsO4fZ9I",TAB:"Form Responses 1",LOG_TAB:"Patient log",REFRESH_SEC:15};
 function gviz(tab){return "https://docs.google.com/spreadsheets/d/"+CFG.SHEET_ID+"/gviz/tq?tqx=out:csv&headers=1&sheet="+encodeURIComponent(tab)+"&_="+Date.now()}
-function stayOf(r){var k=s(r[C.BIB])+"|"+mins(r[C.TIN]);if(PL[k]!==undefined)return PL[k];var d=stay(r);return d==null?null:d+" min"}
 async function getCSV(tab){
   var r=await fetch(gviz(tab),{cache:"no-store"});
   if(!r.ok)throw new Error("HTTP "+r.status);
